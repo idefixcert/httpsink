@@ -5,7 +5,7 @@ A test http service that acts as http sink, every request is printed to the stdo
 ## Install
 
 ```
-go get github.com/idefixcert/httpsink go clean -i 
+go get github.com/idefixcert/httpsink
 ```
 
 ## Remove
