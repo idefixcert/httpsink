@@ -41,17 +41,17 @@ func rootHandler(sleep time.Duration) http.HandlerFunc {
 
 func proxyHandler(target string) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		// parse the url
-		url, _ := url.Parse(target)
+		// parse the targetURL
+		targetURL, _ := url.Parse(target)
 
 		// create the reverse proxy
-		proxy := httputil.NewSingleHostReverseProxy(url)
+		proxy := httputil.NewSingleHostReverseProxy(targetURL)
 
 		// Update the headers to allow for SSL redirection
-		req.URL.Host = url.Host
-		req.URL.Scheme = url.Scheme
+		req.URL.Host = targetURL.Host
+		req.URL.Scheme = targetURL.Scheme
 		req.Header.Set("X-Forwarded-Host", req.Header.Get("Host"))
-		req.Host = url.Host
+		req.Host = targetURL.Host
 
 		// Note that ServeHttp is non blocking and uses a go routine under the hood
 		proxy.ServeHTTP(w, req)
@@ -75,7 +75,7 @@ func logRequest(handler http.Handler) http.Handler {
 		message := fmt.Sprintf("Request:\n%s\nResponse Code: %d\nResponse:\n%s\n\n", string(x), rec.Code, rec.Body.String())
 		if rec.Code >= 500 {
 			color.Error.Block(message)
-		} else if rec.Code >= 404 {
+		} else if rec.Code >= 400 {
 			color.Warn.Block(message)
 		} else if rec.Code >= 200 {
 			color.Info.Block(message)
@@ -85,6 +85,6 @@ func logRequest(handler http.Handler) http.Handler {
 			w.Header()[k] = v
 		}
 		w.WriteHeader(rec.Code)
-		rec.Body.WriteTo(w)
+		_, _ = rec.Body.WriteTo(w)
 	})
 }
