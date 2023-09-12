@@ -17,6 +17,6 @@ go clean -i github.com/idefixcert/httpsink
 ## Download the prebuild files from github
 
 ```
-wget https://github.com/idefixcert/httpsink/releases/download/1.1.2/httpsink_1.1.2_linux_386.tar.gz
+wget https://github.com/idefixcert/httpsink/releases/download/1.1.3/httpsink_1.1.3_linux_386.tar.gz
 tar -xzvf httpsink_v1.1.2_linux_386.tar.gz
 ```

@@ -8,21 +8,15 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/http/httputil"
-	"net/url"
 	"time"
 )
 
 func main() {
 	addr := flag.String("addr", ":19091", "HTTP network address")
-	up := flag.String("up", "", "upstream address for proxy address, if not set, there is no upstream and the sink returns always with 200")
 	sleep := flag.Duration("sleep", 0, "sleeptime for non proxy function")
 	flag.Parse()
 
-	if *up == "" {
-		http.HandleFunc("/", rootHandler(*sleep))
-	} else {
-		http.HandleFunc("/", proxyHandler(*up))
-	}
+	http.HandleFunc("/", rootHandler(*sleep))
 
 	log.Printf("Starting server on %s\n", *addr)
 
@@ -35,26 +29,7 @@ func main() {
 func rootHandler(sleep time.Duration) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		time.Sleep(sleep)
-		_, _ = fmt.Fprintf(w, "<h1>Hello World</h1><div>Welcome to whereever you are</div>")
-	}
-}
-
-func proxyHandler(target string) http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
-		// parse the targetURL
-		targetURL, _ := url.Parse(target)
-
-		// create the reverse proxy
-		proxy := httputil.NewSingleHostReverseProxy(targetURL)
-
-		// Update the headers to allow for SSL redirection
-		req.URL.Host = targetURL.Host
-		req.URL.Scheme = targetURL.Scheme
-		req.Header.Set("X-Forwarded-Host", req.Header.Get("Host"))
-		req.Host = targetURL.Host
-
-		// Note that ServeHttp is non blocking and uses a go routine under the hood
-		proxy.ServeHTTP(w, req)
+		_, _ = fmt.Fprintf(w, "")
 	}
 }
 
@@ -72,7 +47,7 @@ func logRequest(handler http.Handler) http.Handler {
 		//log.Printf("%s %s\n", err, string(body))
 		rec := httptest.NewRecorder()
 		handler.ServeHTTP(rec, r)
-		message := fmt.Sprintf("Request:\n%s\nResponse Code: %d\nResponse:\n%s\n\n", string(x), rec.Code, rec.Body.String())
+		message := fmt.Sprintf("Time:%v\nUrl:\n%sRequest:\n%s\nResponse Code: %d\nResponse:\n%s\n\n", time.Now(), r.URL.Path, string(x), rec.Code, rec.Body.String())
 		if rec.Code >= 500 {
 			color.Error.Block(message)
 		} else if rec.Code >= 400 {
