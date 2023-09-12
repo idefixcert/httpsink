@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/gookit/color"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -48,13 +47,7 @@ func logRequest(handler http.Handler) http.Handler {
 		rec := httptest.NewRecorder()
 		handler.ServeHTTP(rec, r)
 		message := fmt.Sprintf("Time:%v\nUrl:\n%sRequest:\n%s\nResponse Code: %d\nResponse:\n%s\n\n", time.Now(), r.URL.Path, string(x), rec.Code, rec.Body.String())
-		if rec.Code >= 500 {
-			color.Error.Block(message)
-		} else if rec.Code >= 400 {
-			color.Warn.Block(message)
-		} else if rec.Code >= 200 {
-			color.Info.Block(message)
-		}
+		fmt.Println(message)
 		// this copies the recorded response to the response writer
 		for k, v := range rec.Header() {
 			w.Header()[k] = v
